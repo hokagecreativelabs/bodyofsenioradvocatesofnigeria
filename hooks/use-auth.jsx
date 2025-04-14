@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { createContext, useContext } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
@@ -8,15 +8,15 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const { toast } = useToast();
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useQuery({
+
+  // Fetch user data from the API
+  const { data: user, error, isLoading } = useQuery({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    retry: 1, // Retry once on failure (optional)
   });
 
+  // Login Mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/login", credentials);
@@ -38,6 +38,7 @@ export function AuthProvider({ children }) {
     },
   });
 
+  // Registration Mutation
   const registerMutation = useMutation({
     mutationFn: async (credentials) => {
       const res = await apiRequest("POST", "/api/register", credentials);
@@ -59,6 +60,7 @@ export function AuthProvider({ children }) {
     },
   });
 
+  // Logout Mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", "/api/logout");
