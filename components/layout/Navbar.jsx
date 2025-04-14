@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Link, useRoute } from "wouter";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
@@ -14,16 +15,18 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, logoutMutation } = useAuth();
 
-  const [isHomePage] = useRoute("/");
-  const [isAboutPage] = useRoute("/about");
-  const [isEventsPage] = useRoute("/events");
-  const [isMembersPage] = useRoute("/members");
-  const [isContactPage] = useRoute("/contact");
+  const pathname = usePathname();
+
+  const isHomePage = pathname === "/";
+  const isAboutPage = pathname === "/about";
+  const isEventsPage = pathname === "/events";
+  const isMembersPage = pathname === "/members";
+  const isContactPage = pathname === "/contact";
 
   // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
-  }, [isHomePage, isAboutPage, isEventsPage, isMembersPage, isContactPage]);
+  }, [pathname]);
 
   // Detect scrolling
   useEffect(() => {
@@ -66,10 +69,7 @@ const Navbar = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-6 h-full">
           <div className="flex justify-between items-center h-full">
             <div className="flex items-center h-full">
-              <div
-                onClick={() => window.location.href = '/'}
-                className="flex items-center -space-x-8 cursor-pointer h-full"
-              >
+              <Link href="/" className="flex items-center -space-x-8 cursor-pointer h-full">
                 <div
                   className="h-full w-auto flex items-center justify-center overflow-hidden"
                   style={{ maxHeight: "100%" }}
@@ -90,52 +90,50 @@ const Navbar = () => {
                     Body of Senior Advocates of Nigeria
                   </p>
                 </div>
-              </div>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8 items-center">
-              <div
-                onClick={() => window.location.href = '/'}
+              <Link
+                href="/"
                 className={`font-montserrat font-medium cursor-pointer ${isHomePage ? 'text-[#0F2C59]' : 'text-[#343A40]'} hover:text-[#D4AF37] transition duration-300`}
               >
                 Home
-              </div>
-              {/* Other nav items... */}
-              {/* Keeping the rest of desktop navigation the same */}
-              <div
-                onClick={() => window.location.href = '/about'}
+              </Link>
+              <Link
+                href="/about"
                 className={`font-montserrat font-medium cursor-pointer ${isAboutPage ? 'text-[#0F2C59]' : 'text-[#343A40]'} hover:text-[#D4AF37] transition duration-300`}
               >
                 About
-              </div>
-              <div
-                onClick={() => window.location.href = '/events'}
+              </Link>
+              <Link
+                href="/events"
                 className={`font-montserrat font-medium cursor-pointer ${isEventsPage ? 'text-[#0F2C59]' : 'text-[#343A40]'} hover:text-[#D4AF37] transition duration-300`}
               >
                 Events
-              </div>
-              <div
-                onClick={() => window.location.href = '/members'}
+              </Link>
+              <Link
+                href="/members"
                 className={`font-montserrat font-medium cursor-pointer ${isMembersPage ? 'text-[#0F2C59]' : 'text-[#343A40]'} hover:text-[#D4AF37] transition duration-300`}
               >
                 Members
-              </div>
-              <div
-                onClick={() => window.location.href = '/contact'}
+              </Link>
+              <Link
+                href="/contact"
                 className={`font-montserrat font-medium cursor-pointer ${isContactPage ? 'text-[#0F2C59]' : 'text-[#343A40]'} hover:text-[#D4AF37] transition duration-300`}
               >
                 Contact
-              </div>
+              </Link>
 
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <div
-                    onClick={() => window.location.href = '/dashboard'}
+                  <Link
+                    href="/dashboard"
                     className="font-montserrat bg-[#0F2C59] text-white px-5 py-2 rounded hover:bg-opacity-90 transition duration-300 flex items-center space-x-2 cursor-pointer"
                   >
                     <span>Dashboard</span>
-                  </div>
+                  </Link>
                   <Button
                     variant="outline"
                     size="sm"
@@ -193,47 +191,45 @@ const Navbar = () => {
                 style={{ top: "10vh" }}
               >
                 <div className="px-2 pt-2 pb-4 space-y-1 border-t shadow-lg">
-                  <div
-                    onClick={() => window.location.href = '/'}
+                  <Link
+                    href="/"
                     className="block px-3 py-2 text-[#0F2C59] font-medium hover:bg-[#F8F9FA] rounded cursor-pointer"
                   >
                     Home
-                  </div>
-                  {/* Other mobile nav items... */}
-                  {/* Keeping the rest of mobile navigation the same */}
-                  <div
-                    onClick={() => window.location.href = '/about'}
+                  </Link>
+                  <Link
+                    href="/about"
                     className="block px-3 py-2 text-[#343A40] font-medium hover:bg-[#F8F9FA] rounded cursor-pointer"
                   >
                     About
-                  </div>
-                  <div
-                    onClick={() => window.location.href = '/events'}
+                  </Link>
+                  <Link
+                    href="/events"
                     className="block px-3 py-2 text-[#343A40] font-medium hover:bg-[#F8F9FA] rounded cursor-pointer"
                   >
                     Events
-                  </div>
-                  <div
-                    onClick={() => window.location.href = '/members'}
+                  </Link>
+                  <Link
+                    href="/members"
                     className="block px-3 py-2 text-[#343A40] font-medium hover:bg-[#F8F9FA] rounded cursor-pointer"
                   >
                     Members
-                  </div>
-                  <div
-                    onClick={() => window.location.href = '/contact'}
+                  </Link>
+                  <Link
+                    href="/contact"
                     className="block px-3 py-2 text-[#343A40] font-medium hover:bg-[#F8F9FA] rounded cursor-pointer"
                   >
                     Contact
-                  </div>
+                  </Link>
 
                   {user ? (
                     <>
-                      <div
-                        onClick={() => window.location.href = '/dashboard'}
+                      <Link
+                        href="/dashboard"
                         className="block w-full mt-2 font-montserrat bg-[#0F2C59] text-white px-5 py-2 rounded hover:bg-opacity-90 transition duration-300 text-center cursor-pointer"
                       >
                         Dashboard
-                      </div>
+                      </Link>
                       <button
                         className="block w-full mt-2 font-montserrat border border-[#0F2C59] text-[#0F2C59] px-5 py-2 rounded hover:bg-[#0F2C59] hover:text-white transition duration-300 text-center"
                         onClick={handleLogout}

@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -97,28 +97,28 @@ const Footer = () => {
             <h3 className="font-playfair font-bold text-xl mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Home</span>
+                <Link href="/" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Home
                 </Link>
               </li>
               <li>
-                <Link href="/about">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">About Us</span>
+                <Link href="/about" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link href="/events">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Events</span>
+                <Link href="/events" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Events
                 </Link>
               </li>
               <li>
-                <Link href="/members">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Members</span>
+                <Link href="/members" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Members
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Contact</span>
+                <Link href="/contact" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -128,28 +128,28 @@ const Footer = () => {
             <h3 className="font-playfair font-bold text-xl mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Legal Updates</span>
+                <Link href="#" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Legal Updates
                 </Link>
               </li>
               <li>
-                <Link href="#">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Publications</span>
+                <Link href="#" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Publications
                 </Link>
               </li>
               <li>
-                <Link href="#">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Media Gallery</span>
+                <Link href="#" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Media Gallery
                 </Link>
               </li>
               <li>
-                <Link href="#">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">FAQs</span>
+                <Link href="#" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  FAQs
                 </Link>
               </li>
               <li>
-                <Link href="#">
-                  <span className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">Privacy Policy</span>
+                <Link href="#" className="text-gray-400 hover:text-[#D4AF37] transition duration-300 cursor-pointer">
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
