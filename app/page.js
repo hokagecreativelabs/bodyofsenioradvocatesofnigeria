@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from 'react';
 import Hero from "@/components/sections/HeroSection";
 import About from "@/components/sections/AboutSection";
