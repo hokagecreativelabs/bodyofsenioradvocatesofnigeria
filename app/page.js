@@ -4,6 +4,7 @@ import Hero from "@/components/sections/HeroSection";
 import About from "@/components/sections/AboutSection";
 import UpcomingEvents from "@/components/sections/EventsSection";
 import Announcements from "@/components/sections/AnnouncementSection";
+import CallToAction from '@/components/sections/CTASection';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -24,6 +25,7 @@ export default function Home() {
       <About />
       <UpcomingEvents />
       <Announcements />
+      {/* <CallToAction /> */}
     </div>
   );
 }

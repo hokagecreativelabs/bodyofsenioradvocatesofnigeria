@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import Link from "next/link"; // <-- Updated import
 
 const announcements = [
   {
@@ -68,21 +68,22 @@ export default function Announcements() {
                   </h3>
                   <p className="text-[#343A40]/80 leading-relaxed text-sm">{announcement.content}</p>
                   <div className="mt-3">
-                    <Link href={`/announcements/${announcement.id}`}>
-                      <a className="text-[#750E21] font-medium text-sm inline-flex items-center hover:text-opacity-80 transition-colors">
-                        Learn More
-                        <svg
-                          className="w-3 h-3 ml-1"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </a>
+                    <Link
+                      href={`/announcements/${announcement.id}`}
+                      className="text-[#750E21] font-medium text-sm inline-flex items-center hover:text-opacity-80 transition-colors"
+                    >
+                      Learn More
+                      <svg
+                        className="w-3 h-3 ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                     </Link>
                   </div>
                 </div>
