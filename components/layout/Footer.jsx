@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -35,17 +36,28 @@ const Footer = () => {
           <div>
             <Link href="/">
               <div className="flex items-center space-x-2 mb-4 cursor-pointer">
-                <div className="h-10 w-10 bg-[#0F2C59] rounded-full flex items-center justify-center">
-                  <span className="text-[#D4AF37] font-playfair font-bold text-lg">B</span>
+                <div className="h-[60px] w-[60px] flex items-center justify-center overflow-hidden rounded-full bg-[#0F2C59]">
+                  <Image
+                    src="/assets/BOSAN-logo.png"
+                    alt="BOSAN Logo"
+                    width={60}
+                    height={60}
+                    style={{
+                      objectFit: "contain",
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  />
                 </div>
-                <div>
-                  <h3 className="text-white font-playfair font-bold text-xl">BOSAN</h3>
+                <div className="ml-2">
+                  <h3 className="text-white font-playfair font-bold text-lg sm:text-xl">BOSAN</h3>
                   <p className="text-xs text-gray-400">Body of Senior Advocates of Nigeria</p>
                 </div>
               </div>
             </Link>
             <p className="text-gray-400 mb-6">The prestigious association of Senior Advocates committed to upholding the rule of law and excellence in legal practice.</p>
             <div className="flex space-x-4">
+              {/* Social media icons remain unchanged */}
               <motion.a 
                 href="https://twitter.com" 
                 target="_blank" 

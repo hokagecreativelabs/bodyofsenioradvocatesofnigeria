@@ -297,9 +297,9 @@ const About = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
-          <Link href="/about">
+          <Link href="/members">
             <Button className="bg-transparent border border-[#0F2C59] text-[#0F2C59] font-montserrat font-medium py-2 px-6 rounded-md hover:bg-[#0F2C59] hover:text-white transition duration-300">
-              Learn More About BOSAN
+              Our Disinguished Members
             </Button>
           </Link>
         </motion.div>
