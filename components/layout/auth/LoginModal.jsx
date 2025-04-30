@@ -5,9 +5,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const LoginModal = ({ isOpen, onClose }) => {
-  const { loginMutation, registerMutation } = useAuth();
+  const { login, register, isLoading, error: authError } = useAuth();
   const router = useRouter();
   const initialFocusRef = useRef(null);
 
@@ -25,7 +26,8 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [errors, setErrors] = useState({
     fullName: "",
     email: "",
-    password: ""
+    password: "",
+    form: ""
   });
   
   // Track if fields have been touched
@@ -35,26 +37,12 @@ const LoginModal = ({ isOpen, onClose }) => {
     password: false
   });
 
-  // Reset form when modal closes
+  // Reset form when modal closes or toggles between login/signup
   useEffect(() => {
     if (!isOpen) {
-      setFormData({
-        fullName: "",
-        email: "",
-        password: ""
-      });
-      setErrors({
-        fullName: "",
-        email: "",
-        password: ""
-      });
-      setTouched({
-        fullName: false,
-        email: false,
-        password: false
-      });
+      resetForm();
     }
-  }, [isOpen]);
+  }, [isOpen, isSignup]);
 
   // Focus on initial field
   useEffect(() => {
@@ -65,6 +53,35 @@ const LoginModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen, isSignup]);
 
+  // Set form error if auth error exists
+  useEffect(() => {
+    if (authError) {
+      setErrors(prev => ({
+        ...prev,
+        form: authError
+      }));
+    }
+  }, [authError]);
+
+  const resetForm = () => {
+    setFormData({
+      fullName: "",
+      email: "",
+      password: ""
+    });
+    setErrors({
+      fullName: "",
+      email: "",
+      password: "",
+      form: ""
+    });
+    setTouched({
+      fullName: false,
+      email: false,
+      password: false
+    });
+  };
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,10 +91,18 @@ const LoginModal = ({ isOpen, onClose }) => {
     });
     
     // Clear error when user types
-    if (value.trim() !== "") {
+    if (errors[name]) {
       setErrors({
         ...errors,
         [name]: ""
+      });
+    }
+    
+    // Clear form error
+    if (errors.form) {
+      setErrors({
+        ...errors,
+        form: ""
       });
     }
   };
@@ -132,7 +157,6 @@ const LoginModal = ({ isOpen, onClose }) => {
     // Validate each field
     if (isSignup) {
       isValid = validateField("fullName", formData.fullName) && isValid;
-      newErrors.fullName = !formData.fullName.trim() ? "Full name is required" : "";
     }
     
     isValid = validateField("email", formData.email) && isValid;
@@ -148,33 +172,45 @@ const LoginModal = ({ isOpen, onClose }) => {
     return isValid;
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
-    
+
     try {
       if (isSignup) {
-        await registerMutation.mutateAsync({
+        await register({
           fullName: formData.fullName,
           email: formData.email,
           password: formData.password
         });
       } else {
-        await loginMutation.mutateAsync({
+        await login({
           email: formData.email,
           password: formData.password
         });
       }
+    
       onClose();
-      router.push("/dashboard");
+      router.push("/member-dashboard");
     } catch (error) {
-      console.error(isSignup ? "Signup error:" : "Login error:", error);
+      setErrors(prev => ({
+        ...prev,
+        form: error.message || "Authentication failed"
+      }));
     }
   };
-
+  
+  // Toggle between login and signup forms
+  const toggleMode = (e) => {
+    e.preventDefault();
+    setIsSignup(!isSignup);
+    resetForm();
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md bg-white shadow-lg rounded-lg">
@@ -185,6 +221,12 @@ const LoginModal = ({ isOpen, onClose }) => {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          {errors.form && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded">
+              {errors.form}
+            </div>
+          )}
+          
           {isSignup && (
             <div className="space-y-2">
               <label className="text-gray-800 font-medium">Full Name</label>
@@ -215,6 +257,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               ref={!isSignup ? initialFocusRef : null}
               placeholder="your.email@example.com"
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-900"
+              autoComplete={isSignup ? "email" : "username"}
             />
             {touched.email && errors.email && (
               <p className="text-red-500 text-sm">{errors.email}</p>
@@ -231,6 +274,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               onBlur={handleBlur}
               placeholder="Your password"
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-900"
+              autoComplete={isSignup ? "new-password" : "current-password"}
             />
             {touched.password && errors.password && (
               <p className="text-red-500 text-sm">{errors.password}</p>
@@ -239,13 +283,17 @@ const LoginModal = ({ isOpen, onClose }) => {
 
           <Button
             type="submit"
-            disabled={isSignup ? registerMutation.isPending : loginMutation.isPending}
+            disabled={isLoading}
             className="w-full bg-blue-900 text-white font-medium py-2 px-4 rounded hover:bg-opacity-90 transition duration-300 mt-6"
           >
-            {isSignup 
-              ? (registerMutation.isPending ? "Signing up..." : "Sign Up") 
-              : (loginMutation.isPending ? "Logging in..." : "Login")
-            }
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isSignup ? "Signing up..." : "Logging in..."}
+              </span>
+            ) : (
+              isSignup ? "Sign Up" : "Login"
+            )}
           </Button>
         </form>
 
@@ -257,10 +305,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 <a
                   href="#"
                   className="text-blue-900 font-medium hover:underline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsSignup(false);
-                  }}
+                  onClick={toggleMode}
                 >
                   Login here
                 </a>
@@ -271,10 +316,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 <a
                   href="#"
                   className="text-blue-900 font-medium hover:underline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsSignup(true);
-                  }}
+                  onClick={toggleMode}
                 >
                   Sign up here
                 </a>

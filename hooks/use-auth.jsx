@@ -1,106 +1,156 @@
-"use client";
-import { createContext, useContext } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+  // hooks/use-auth.js
+  "use client";
 
-const AuthContext = createContext(null);
+  import { createContext, useContext, useEffect, useState } from "react";
 
-export function AuthProvider({ children }) {
-  const { toast } = useToast();
+  const AuthContext = createContext();
 
-  // Fetch user data from the API
-  const { data: user, error, isLoading } = useQuery({
-    queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-    retry: 1, // Retry once on failure (optional)
-  });
+  export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  // Login Mutation
-  const loginMutation = useMutation({
-    mutationFn: async (credentials) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
-    },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Login successful",
-        description: `Welcome back, ${user.fullName}!`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Login failed",
-        description: error.message || "Invalid credentials",
-        variant: "destructive",
-      });
-    },
-  });
+    // Check if user is logged in on initial load
+    useEffect(() => {
+      const checkAuthStatus = async () => {
+        setIsLoading(true);
+        try {
+          const response = await fetch("/api/auth/me");
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data.user);
+          } else {
+            setUser(null);
+          }
+        } catch (err) {
+          console.error("Auth check error:", err);
+          setUser(null);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-  // Registration Mutation
-  const registerMutation = useMutation({
-    mutationFn: async (credentials) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
-    },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Registration successful",
-        description: `Welcome to BOSAN, ${user.fullName}!`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Registration failed",
-        description: error.message || "Could not complete registration",
-        variant: "destructive",
-      });
-    },
-  });
+      checkAuthStatus();
+    }, []);
 
-  // Logout Mutation
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(["/api/user"], null);
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Logout failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+    // Register function
+    const register = async (userData) => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        });
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user: user ?? null,
-        isLoading,
-        error,
-        loginMutation,
-        logoutMutation,
-        registerMutation,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
+        const data = await response.json();
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+        if (!response.ok) {
+          throw new Error(data.error || "Registration failed");
+        }
+
+        // Login after successful registration
+        await login({
+          email: userData.email,
+          password: userData.password
+        });
+        
+        return data;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Login function
+    const login = async (credentials) => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(credentials),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Login failed");
+        }
+
+        setUser(data.user);
+        return data;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Logout function
+    const logout = async () => {
+      setIsLoading(true);
+      
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+        });
+        
+        setUser(null);
+      } catch (err) {
+        console.error("Logout error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Refresh user data
+    const refreshUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Error refreshing user:", err);
+      }
+    };
+
+    return (
+      <AuthContext.Provider
+        value={{
+          user,
+          isLoading,
+          error,
+          login,
+          register,
+          logout,
+          refreshUser,
+          isAuthenticated: !!user
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
   }
-  return context;
-}
+
+  export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+      throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
+  };
+  
