@@ -1,13 +1,13 @@
-// app/member-dashboard/layout.jsx
-import AdminLayout from "@/components/layouts/AdminLayout";
+// // app/member-dashboard/layout.jsx
+// import AdminLayout from "@/components/layouts/AdminLayout";
 
-export default function MemberDashboardLayout({ children }) {
-  return (
-    <AdminLayout>
-      {children}
-    </AdminLayout>
-  );
-}
+// export default function MemberDashboardLayout({ children }) {
+//   return (
+//     <AdminLayout>
+//       {children}
+//     </AdminLayout>
+//   );
+// }
 
 // app/member-dashboard/page.jsx
 "use client";
