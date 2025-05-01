@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/use-auth";
 
 const CallToAction = () => {
   const { user } = useAuth();

@@ -1,6 +1,5 @@
 "use client";
 import "./globals.css";
-import { AuthProvider } from "@/hooks/use-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
@@ -18,12 +17,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="min-h-screen flex flex-col">
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
             {/* Only render Navbar and Footer for non-dashboard routes */}
             {!isDashboardRoute && <Navbar />}
             <main className={`${!isDashboardRoute ? 'flex-1' : ''}`}>{children}</main>
             {!isDashboardRoute && <Footer />}
-          </AuthProvider>
         </QueryClientProvider>
       </body>
     </html>

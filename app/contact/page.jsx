@@ -282,8 +282,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-montserrat font-semibold mb-1">Phone Number</h4>
-                      <p className="text-white/80">+234 (0) 1234 5678</p>
-                      <p className="text-white/80">+234 (0) 9876 5432</p>
+                      <p className="text-white/80">+234 704 444 4124</p>
+                      {/* <p className="text-white/80">+234 (0) 9876 5432</p> */}
                     </div>
                   </div>
                   
@@ -295,8 +295,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-montserrat font-semibold mb-1">Email Address</h4>
-                      <p className="text-white/80">info@bosan.org.ng</p>
-                      <p className="text-white/80">secretary@bosan.org.ng</p>
+                      <p className="text-white/80">bosanigeria@gmail.com</p>
+                      {/* <p className="text-white/80">secretary@bosan.org.ng</p> */}
                     </div>
                   </div>
                   

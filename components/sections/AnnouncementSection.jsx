@@ -25,7 +25,7 @@ const fadeInUp = {
 
 export default function Announcements() {
   return (
-    <section className="bg-[#F8F9FA] py-16">
+    <section className="py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"

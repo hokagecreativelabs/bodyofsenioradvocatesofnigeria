@@ -105,7 +105,7 @@ const About = () => {
 
         {/* Leadership Section */}
 <motion.section
-  className="py-20 px-4 sm:px-10 bg-[#F9FAFB]"
+  className="py-20 px-4 sm:px-10"
   initial="hidden"
   whileInView="visible"
   viewport={{ once: true }}

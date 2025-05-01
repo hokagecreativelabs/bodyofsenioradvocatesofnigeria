@@ -4,50 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Lock, Menu, X } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
-import LoginModal from "@/components/layout/auth/LoginModal";
+import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
-  const { user, logout, isLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
-  const handleToggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const handleToggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
+  const handleOpenLoginModal = () => setIsLoginModalOpen(true);
+  const handleCloseLoginModal = () => setIsLoginModalOpen(false);
 
-  const handleOpenLoginModal = () => {
-    setIsLoginModalOpen(true);
-  };
 
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    router.push("/"); // Redirect to home page after logout
-  };
-
-  const navigateToDashboard = () => {
-    router.push("/member-dashboard");
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
-  // Navigation links
   const navLinks = [
     { title: "Home", path: "/" },
     { title: "About", path: "/about" },
     { title: "Members", path: "/members" },
-    // { title: "Resources", path: "/resources" },
-    { title: "Contact", path: "/contact" }
+    { title: "Contact", path: "/contact" },
   ];
 
   return (
@@ -68,7 +42,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -85,47 +59,9 @@ const Navbar = () => {
             ))}
           </nav>
 
-          {/* Desktop Auth Section */}
-          <div className="hidden md:block">
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <Button
-                  onClick={navigateToDashboard}
-                  className="font-montserrat bg-[#0F2C59] text-white px-5 py-2 rounded hover:bg-opacity-90 transition duration-300 flex items-center space-x-2"
-                >
-                  <span>Dashboard</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  disabled={isLoading}
-                  className="border-blue-900 text-blue-900 hover:bg-blue-50"
-                >
-                  {isLoading ? "Logging out..." : "Logout"}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                className="font-montserrat bg-[#0F2C59] text-white px-5 py-2 rounded hover:bg-opacity-90 transition duration-300 flex items-center space-x-2"
-                onClick={handleOpenLoginModal}
-              >
-                <span>Member Login</span>
-                <Lock className="h-4 w-4 ml-2" />
-              </Button>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
+          {/* Desktop CTA */}
+          {/* Mobile menu toggle + optional Dashboard */}
           <div className="md:hidden flex items-center">
-            {user && (
-              <Button
-                onClick={navigateToDashboard}
-                className="font-montserrat bg-[#0F2C59] text-white px-3 py-1 rounded text-sm hover:bg-opacity-90 transition duration-300 mr-4"
-              >
-                Dashboard
-              </Button>
-            )}
             <button
               onClick={handleToggleMenu}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-900"
@@ -159,37 +95,9 @@ const Navbar = () => {
                 {link.title}
               </Link>
             ))}
-            
-            {/* Mobile Auth Section */}
-            {user ? (
-              <button
-                onClick={handleLogout}
-                disabled={isLoading}
-                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-900"
-              >
-                {isLoading ? "Logging out..." : "Logout"}
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  handleOpenLoginModal();
-                  closeMenu();
-                }}
-                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-900 flex items-center"
-              >
-                <span>Member Login</span>
-                <Lock className="h-4 w-4 ml-2" />
-              </button>
-            )}
           </div>
         </div>
       )}
-
-      {/* Login Modal */}
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={handleCloseLoginModal} 
-      />
     </header>
   );
 };
