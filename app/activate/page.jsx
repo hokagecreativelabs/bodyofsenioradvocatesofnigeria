@@ -1,39 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-export default function ActivatePage() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-
-  const [status, setStatus] = useState('loading');
-
-  useEffect(() => {
-    if (!token) {
-      setStatus('missing');
-      return;
-    }
-
-    const activateAccount = async () => {
-      try {
-        await axios.post('/api/activate', { token });
-        setStatus('success');
-      } catch (error) {
-        setStatus('error');
-      }
-    };
-
-    activateAccount();
-  }, [token]);
-
-  if (status === 'loading') return <p>Activating your account...</p>;
-  if (status === 'missing') return <p>Invalid activation link.</p>;
-  if (status === 'success') return <p>Your account has been activated!</p>;
-  return <p>Failed to activate your account. Please try again later.</p>;
-}'use client';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 export default function ActivatePage() {
   const searchParams = useSearchParams();
@@ -65,8 +32,7 @@ export default function ActivatePage() {
   }, [token]);
 
   if (status === 'loading') return <p>Activating your account...</p>;
-  if (status === 'success') return <p>Your account has been activated!</p>;
-  if (status === 'invalid') return <p>Invalid token provided.</p>;
-  return <p>Failed to activate your account.</p>;
+  if (status === 'success') return <p>✅ Your account has been activated!</p>;
+  if (status === 'invalid') return <p>⚠️ Invalid token provided.</p>;
+  return <p>❌ Failed to activate your account.</p>;
 }
-
