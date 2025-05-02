@@ -5,16 +5,17 @@ import { sendMail } from "@/lib/mailer";
 
 export async function POST() {
   await dbConnect();
-  
+
   const users = await User.find({
     isActive: false,
     email: { $ne: "" },
-    invitationSent: { $ne: true },
+    invitationSent: { $ne: true }, // Skip already-invited
   });
 
   let sent = 0;
 
   for (const user of users) {
+    // Ensure token and expiry exist
     if (!user.activationToken || !user.activationTokenExpiresAt) continue;
 
     const link = `${process.env.NEXT_PUBLIC_BASE_URL}/activate?token=${user.activationToken}`;
