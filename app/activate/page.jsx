@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import ActivateClient from './client';
+import ActivateClient from './Client';
 
 export default function ActivatePage() {
   return (
