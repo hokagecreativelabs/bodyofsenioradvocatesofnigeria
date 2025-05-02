@@ -13,7 +13,10 @@ export async function POST(request) {
   });
 
   if (!user) {
-    return NextResponse.json({ success: false, message: 'Invalid or expired token' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: 'Invalid or expired token' },
+      { status: 400 }
+    );
   }
 
   user.isActive = true;
