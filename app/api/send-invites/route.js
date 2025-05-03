@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import { render } from '@react-email/render';
-import InvitationEmail from '../emails/invitation';
+import InvitationEmail from '../components/templates/emails/invitation';
 
 export const sendMail = async (to, subject, params) => {
   const resend = new Resend(process.env.RESEND_API_KEY);
