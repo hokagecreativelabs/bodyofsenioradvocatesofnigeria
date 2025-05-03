@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import User from "@/models/user.model";
-import { sendMail } from "@/lib/mailer";
+import { sendMail } from "../../../lib/mailer"; // Updated to use Resend
 
 export async function POST() {
   try {
     console.log("Starting send-invites process");
     await dbConnect();
     console.log("Database connected");
-
-    // Log environment variables (be careful not to log sensitive info)
-    console.log("BASE_URL:", process.env.NEXT_PUBLIC_BASE_URL);
-    console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
 
     const users = await User.find({
       isActive: false,
@@ -21,34 +17,19 @@ export async function POST() {
 
     console.log(`Found ${users.length} eligible users to invite`);
     
-    // If no users found, add more detailed check
     if (users.length === 0) {
-      // Check how many inactive users exist at all
       const inactiveUsers = await User.countDocuments({ isActive: false });
       const usersWithEmail = await User.countDocuments({ 
         isActive: false, 
         email: { $ne: "" } 
       });
-      const usersWithToken = await User.countDocuments({ 
-        isActive: false, 
-        email: { $ne: "" },
-        activationToken: { $exists: true, $ne: null }
-      });
-      const alreadyInvited = await User.countDocuments({ 
-        invitationSent: true 
-      });
       
-      console.log(`Debug counts: ${inactiveUsers} inactive, ${usersWithEmail} with email, ${usersWithToken} with token, ${alreadyInvited} already invited`);
+      console.log(`Debug counts: ${inactiveUsers} inactive, ${usersWithEmail} with email`);
       
       return NextResponse.json({ 
         success: true, 
         sent: 0,
-        debug: {
-          inactiveUsers,
-          usersWithEmail,
-          usersWithToken,
-          alreadyInvited
-        }
+        message: "No eligible users found to send invitations"
       });
     }
 
@@ -62,21 +43,23 @@ export async function POST() {
         continue;
       }
 
-      const link = `${process.env.NEXT_PUBLIC_BASE_URL}/activate?token=${user.activationToken}`;
-      console.log(`Generated activation link for ${user.email}: ${link}`);
-
-      const html = `
-        <h2>Dear ${user.fullName || user.name},</h2>
-        <p>You've been invited to activate your BOSAN portal account.</p>
-        <p><a href="${link}">Click here to activate your account</a></p>
-        <p>This link expires in 3 days.</p>
-        <p>Regards,<br>BOSAN Secretariat</p>
-      `;
+      const activationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/activate?token=${user.activationToken}`;
+      console.log(`Generated activation link for ${user.email}: ${activationLink}`);
 
       try {
         console.log(`Attempting to send email to ${user.email}`);
-        const mailResult = await sendMail(user.email, "Activate Your BOSAN Account", html);
-        console.log(`Email sent to ${user.email}, result:`, mailResult);
+        
+        // Send email using React Email template
+        const mailResult = await sendMail(
+          user.email, 
+          "Activate Your BOSAN Account", 
+          {
+            userName: user.fullName || user.name,
+            activationLink: activationLink
+          }
+        );
+        
+        console.log(`Email sent to ${user.email}`);
 
         user.invitationSent = true;
         user.lastError = "";
