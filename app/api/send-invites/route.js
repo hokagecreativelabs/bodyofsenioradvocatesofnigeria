@@ -1,97 +1,51 @@
-import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoose";
-import User from "@/models/user.model";
-import { sendMail } from "../../../lib/mailer"; // Updated to use Resend
+import { Resend } from 'resend';
+import { render } from '@react-email/render';
+import InvitationEmail from '../emails/invitation';
 
-export async function POST() {
+export const sendMail = async (to, subject, params) => {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  
   try {
-    console.log("Starting send-invites process");
-    await dbConnect();
-    console.log("Database connected");
-
-    const users = await User.find({
-      isActive: false,
-      email: { $ne: "" },
-      invitationSent: { $ne: true }, // Skip already-invited
-    });
-
-    console.log(`Found ${users.length} eligible users to invite`);
+    console.log(`Sending email to ${to} via Resend`);
     
-    if (users.length === 0) {
-      const inactiveUsers = await User.countDocuments({ isActive: false });
-      const usersWithEmail = await User.countDocuments({ 
-        isActive: false, 
-        email: { $ne: "" } 
-      });
-      
-      console.log(`Debug counts: ${inactiveUsers} inactive, ${usersWithEmail} with email`);
-      
-      return NextResponse.json({ 
-        success: true, 
-        sent: 0,
-        message: "No eligible users found to send invitations"
-      });
-    }
-
-    let sent = 0;
-    let errors = [];
-
-    for (const user of users) {
-      // Ensure token and expiry exist
-      if (!user.activationToken || !user.activationTokenExpiresAt) {
-        console.log(`User ${user.email} missing activation token or expiry`);
-        continue;
-      }
-
-      const activationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/activate?token=${user.activationToken}`;
-      console.log(`Generated activation link for ${user.email}: ${activationLink}`);
-
-      try {
-        console.log(`Attempting to send email to ${user.email}`);
-        
-        // Send email using React Email template
-        const mailResult = await sendMail(
-          user.email, 
-          "Activate Your BOSAN Account", 
-          {
-            userName: user.fullName || user.name,
-            activationLink: activationLink
-          }
-        );
-        
-        console.log(`Email sent to ${user.email}`);
-
-        user.invitationSent = true;
-        user.lastError = "";
-        await user.save();
-        console.log(`Updated user ${user.email} as invited`);
-
-        sent++;
-      } catch (err) {
-        console.error(`Failed to send to ${user.email}:`, err);
-        errors.push({
-          email: user.email,
-          error: err.message || "Unknown error",
-          details: err.response?.data || {}
-        });
-
-        user.invitationSent = false;
-        user.lastError = err.message || "Unknown error";
-        await user.save();
-      }
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      sent,
-      errors: errors.length > 0 ? errors : undefined
+    // Ensure proper FROM_EMAIL format
+    const fromEmail = process.env.FROM_EMAIL && process.env.FROM_EMAIL.includes('<') 
+      ? process.env.FROM_EMAIL 
+      : 'BOSAN Secretariat <onboarding@resend.dev>';
+    
+    console.log(`Using from email: ${fromEmail}`);
+    
+    // Render React email template to HTML
+    const html = render(
+      <InvitationEmail 
+        userName={params.userName}
+        activationLink={params.activationLink}
+      />
+    );
+    
+    const response = await resend.emails.send({
+      from: fromEmail,
+      to: to,
+      subject: subject,
+      html: html,
+      // Add text version for better deliverability
+      text: `Dear ${params.userName}, You've been invited to activate your BOSAN portal account. Please click this link to activate: ${params.activationLink}. This link expires in 3 days. Regards, BOSAN Secretariat`,
     });
-  } catch (mainError) {
-    console.error("Main function error:", mainError);
-    return NextResponse.json({ 
-      success: false, 
-      error: mainError.message,
-      sent: 0
-    }, { status: 500 });
+    
+    console.log(`Email sent response:`, response);
+    
+    // Check for errors in the response
+    if (response.error) {
+      console.error(`Resend API returned an error:`, response.error);
+      throw new Error(response.error.message || 'Unknown Resend error');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error(`Failed to send email to ${to} via Resend:`, error);
+    if (error.response?.data) {
+      console.error('API response data:', error.response.data);
+    }
+    throw error;
   }
-}
+};
