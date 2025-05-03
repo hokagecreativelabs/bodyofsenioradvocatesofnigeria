@@ -1,51 +1,85 @@
-import { Resend } from 'resend';
-import { render } from '@react-email/render';
-import InvitationEmail from '../../../components/templates/emails/invitation';
+import { NextResponse } from "next/server";
+import dbConnect from "@/lib/mongoose";
+import User from "@/models/user.model";
+import { sendMail } from "@/lib/mailer";
 
-export const sendMail = async (to, subject, params) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  
+export async function POST() {
   try {
-    console.log(`Sending email to ${to} via Resend`);
+    await dbConnect();
     
-    // Ensure proper FROM_EMAIL format
-    const fromEmail = process.env.FROM_EMAIL && process.env.FROM_EMAIL.includes('<') 
-      ? process.env.FROM_EMAIL 
-      : 'BOSAN Secretariat <onboarding@resend.dev>';
+    // Add logging to see what's happening in production
+    console.log("BASE_URL:", process.env.NEXT_PUBLIC_BASE_URL);
     
-    console.log(`Using from email: ${fromEmail}`);
-    
-    // Render React email template to HTML
-    const html = render(
-      <InvitationEmail 
-        userName={params.userName}
-        activationLink={params.activationLink}
-      />
-    );
-    
-    const response = await resend.emails.send({
-      from: fromEmail,
-      to: to,
-      subject: subject,
-      html: html,
-      // Add text version for better deliverability
-      text: `Dear ${params.userName}, You've been invited to activate your BOSAN portal account. Please click this link to activate: ${params.activationLink}. This link expires in 3 days. Regards, BOSAN Secretariat`,
+    const users = await User.find({
+      isActive: false,
+      email: { $ne: "" },
+      invitationSent: { $ne: true }, // Skip already-invited
     });
     
-    console.log(`Email sent response:`, response);
+    console.log(`Found ${users.length} users to invite`);
     
-    // Check for errors in the response
-    if (response.error) {
-      console.error(`Resend API returned an error:`, response.error);
-      throw new Error(response.error.message || 'Unknown Resend error');
+    let sent = 0;
+    let errors = [];
+
+    for (const user of users) {
+      // Ensure token and expiry exist
+      if (!user.activationToken || !user.activationTokenExpiresAt) {
+        console.log(`Skipping user ${user.email} - missing token or expiry`);
+        continue;
+      }
+
+      // Fix the template literal syntax with backticks
+      const link = `${process.env.NEXT_PUBLIC_BASE_URL}/activate?token=${user.activationToken}`;
+      
+      const html = `
+        <h2>Dear ${user.fullName || user.name},</h2>
+        <p>You've been invited to activate your BOSAN portal account.</p>
+        <p><a href="${link}">Click here to activate your account</a></p>
+        <p>This link expires in 3 days.</p>
+        <p>Regards,<br>BOSAN Secretariat</p>
+      `;
+
+      try {
+        console.log(`Attempting to send email to ${user.email}`);
+        const result = await sendMail(user.email, "Activate Your BOSAN Account", html);
+        console.log(`Email result:`, result);
+
+        user.invitationSent = true;
+        user.lastError = "";
+        await user.save();
+
+        sent++;
+        console.log(`Successfully sent to ${user.email}`);
+      } catch (err) {
+        const errorMsg = err.message || "Unknown error";
+        console.error(`Failed to send to ${user.email}:`, errorMsg);
+        if (err.response) {
+          console.error("API Response:", err.response.data);
+        }
+
+        user.invitationSent = false;
+        user.lastError = errorMsg;
+        await user.save();
+        
+        errors.push({
+          email: user.email,
+          error: errorMsg
+        });
+      }
     }
-    
-    return response;
-  } catch (error) {
-    console.error(`Failed to send email to ${to} via Resend:`, error);
-    if (error.response?.data) {
-      console.error('API response data:', error.response.data);
-    }
-    throw error;
+
+    return NextResponse.json({ 
+      success: true, 
+      sent,
+      total: users.length,
+      errors: errors.length > 0 ? errors : undefined 
+    });
+  } catch (mainError) {
+    console.error("Main function error:", mainError);
+    return NextResponse.json({ 
+      success: false, 
+      error: mainError.message,
+      sent: 0
+    }, { status: 500 });
   }
-};
+}
