@@ -1,6 +1,6 @@
 // app/api/send-email/route.ts
 import { NextResponse } from 'next/server';
-import { sendMail } from '@/lib/sendMail';
+import { sendMail } from '../../../lib/mailer';
 
 export async function POST(req) {
   try {
