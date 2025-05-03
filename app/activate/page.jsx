@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import { toast } from 'react-toastify';
 
-export default function ActivatePage() {
+function ActivateForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const [password, setPassword] = useState('');
@@ -52,7 +52,6 @@ export default function ActivatePage() {
       return () => clearTimeout(timer);
     }
   }, [submitted]);
-  
 
   if (submitted) {
     return (
@@ -90,5 +89,13 @@ export default function ActivatePage() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function ActivatePage() {
+  return (
+    <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
+      <ActivateForm />
+    </Suspense>
   );
 }
