@@ -10,11 +10,13 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: false },
   activationToken: String,
   activationTokenExpiresAt: Date,
-
-  // ✅ New fields for tracking
   invitationSent: { type: Boolean, default: false },
   lastError: { type: String, default: "" },
+
+  // ✅ New field
+  password: { type: String, required: false },
 });
+
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;
