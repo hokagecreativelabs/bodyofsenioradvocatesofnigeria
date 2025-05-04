@@ -223,7 +223,7 @@ const Login = () => {
           </form>
 
           {/* Signup Redirect */}
-          <div className="text-center mt-4">
+          {/* <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
               <Link
@@ -233,7 +233,7 @@ const Login = () => {
                 Sign up
               </Link>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
