@@ -38,6 +38,8 @@ const Login = () => {
 
       try {
         const res = await axios.post("/api/auth/login", values);
+        localStorage.setItem("isLoggedIn", "true");
+
         toast.success("Login successful! Redirecting...", {
           position: "top-center",
           autoClose: 1500,
