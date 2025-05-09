@@ -131,6 +131,7 @@ const Navbar = () => {
     { title: "Committee", path: "/committee" },
     { title: "Events", path: "/events" },
     { title: "Members", path: "/members" },
+    { title: "Resources", path: "/resources" },
     { title: "Contact", path: "/contact" },
   ];
 
