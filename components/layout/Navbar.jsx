@@ -21,6 +21,7 @@ const Navbar = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   // Refs for click outside handling
   const profileDropdownRef = useRef(null);
@@ -30,8 +31,15 @@ const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Fix hydration issues by ensuring component is mounted before rendering browser-specific content
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
+    if (!isMounted) return;
+    
     function handleClickOutside(event) {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
         setProfileDropdownOpen(false);
@@ -47,15 +55,18 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, isMounted]);
 
   // Close mobile menu when route changes
   useEffect(() => {
+    if (!isMounted) return;
     setMobileMenuOpen(false);
-  }, [pathname]);
+  }, [pathname, isMounted]);
 
   // Check authentication status on component mount
   useEffect(() => {
+    if (!isMounted) return;
+
     const checkAuthStatus = async () => {
       try {
         const res = await axios.get('/api/auth/check-auth');
@@ -70,10 +81,12 @@ const Navbar = () => {
     };
 
     checkAuthStatus();
-  }, []);
+  }, [isMounted]);
 
   // Watch for pathname changes to update auth status
   useEffect(() => {
+    if (!isMounted) return;
+    
     // If user navigates to/from login or member pages, check auth again
     if (pathname.includes('login') || pathname.includes('member') || pathname === '/') {
       const checkAuthStatus = async () => {
@@ -89,7 +102,7 @@ const Navbar = () => {
 
       checkAuthStatus();
     }
-  }, [pathname]);
+  }, [pathname, isMounted]);
 
   // Login form validation
   const loginFormik = useFormik({
@@ -166,6 +179,51 @@ const Navbar = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  // Early return while checking if we're mounted - avoids hydration mismatch
+  if (!isMounted) {
+    return (
+      <header className="bg-white shadow-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <Link href="/">
+                <div className="flex items-center space-x-2 mb-4 cursor-pointer">
+                  <div className="h-[60px] w-[60px] flex items-center justify-center overflow-hidden rounded-full bg-[#0F2C59]">
+                    {/* Image will be client rendered */}
+                  </div>
+                  <div className="ml-2">
+                    <h3 className="text-[#0F2C59] font-playfair font-bold text-lg sm:text-xl">BOSAN</h3>
+                    <p className="text-sm text-gray-800">Body of Senior Advocates of Nigeria</p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+            {/* Simplified navigation for pre-hydration */}
+            <nav className="hidden md:flex space-x-8 items-center">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  href={link.path}
+                  className="font-medium cursor-pointer text-[#343A40] hover:text-[#D4AF37] transition duration-300"
+                >
+                  {link.title}
+                </Link>
+              ))}
+            </nav>
+            <div className="md:hidden">
+              <button 
+                className="text-[#0F2C59] hover:text-[#D4AF37] focus:outline-none"
+                aria-label="Toggle mobile menu"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
       <ToastContainer position="top-center" autoClose={3000} />
@@ -174,15 +232,27 @@ const Navbar = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2 cursor-pointer">
-                <div className="h-10 w-10 bg-[#0F2C59] rounded-full flex items-center justify-center">
-                  <span className="text-[#D4AF37] font-bold text-lg">B</span>
+            <Link href="/">
+              <div className="flex items-center space-x-2 mb-4 cursor-pointer">
+                <div className="h-[60px] w-[60px] flex items-center justify-center overflow-hidden rounded-full bg-[#0F2C59]">
+                  <Image
+                    src="/assets/BOSAN-logo.png"
+                    alt="BOSAN Logo"
+                    width={60}
+                    height={60}
+                    style={{
+                      objectFit: "contain",
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  />
                 </div>
-                <div>
-                  <h1 className="text-[#0F2C59] font-bold text-xl">BOSAN</h1>
-                  <p className="text-xs text-gray-500">Body of Senior Advocates of Nigeria</p>
+                <div className="ml-2">
+                  <h3 className="text-[#0F2C59] font-playfair font-bold text-lg sm:text-xl">BOSAN</h3>
+                  <p className="text-sm text-gray-800">Body of Senior Advocates of Nigeria</p>
                 </div>
-              </Link>
+              </div>
+            </Link>
             </div>
             
             {/* Desktop Navigation */}
@@ -330,7 +400,7 @@ const Navbar = () => {
         </div>
       </header>
       
-      {/* Login Modal */}
+      {/* Login Modal - Only render on client */}
       {loginModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden relative">

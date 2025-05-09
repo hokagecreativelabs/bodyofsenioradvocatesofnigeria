@@ -88,7 +88,7 @@ export default function UpcomingEvents() {
 
       <div className="mt-16 text-center">
         <button className="bg-[#D4AF37] hover:bg-[#b6952f] transition-colors text-white font-semibold py-3 px-8 rounded-full shadow">
-          View All Events
+          Our Annual Events
         </button>
       </div>
     </motion.section>

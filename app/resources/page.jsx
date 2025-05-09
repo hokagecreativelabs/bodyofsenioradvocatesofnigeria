@@ -4,37 +4,37 @@ const resources = [
   {
     id: 1,
     title: "A Speech By The Honourable Chief Justice Of Nigeria",
-    url: "/assets/Resources/A-Speech-By-The-Honourable-Chief-Justice-Of-Nigeria.pdf",
+    url: "/Resources/A-Speech-By-The-Honourable-Chief-Justice-Of-Nigeria.pdf",
   },
   {
     id: 2,
     title: "A Speech By The President Of The Nigerian Bar Association",
-    url: "/assets/Resources/A-Speech-By-The-President-Of-The-Nigerian-Bar-Association.pdf",
+    url: "/Resources/A-Speech-By-The-President-Of-The-Nigerian-Bar-Association.pdf",
   },
   {
     id: 3,
     title: "Address Presented Elder C.A.N Nwokeukwu-SAN",
-    url: "/assets/Resources/Address-Presented-Elder-C.A.N-Nwokeukwu-SAN.pdf",
+    url: "/Resources/Address-Presented-Elder-C.A.N-Nwokeukwu-SAN.pdf",
   },
   {
     id: 4,
     title: "Leadership: Bridging the Gap Between Expectation and Performance",
-    url: "/assets/Resources/LEADERSHIP-BRIDGING-THE-GAP-BETWEEN-EXPECTATION-AND -PERFORMANCE.pdf",
+    url: "/Resources/LEADERSHIP-BRIDGING-THE-GAP-BETWEEN-EXPECTATION-AND -PERFORMANCE.pdf",
   },
   {
     id: 5,
     title: "Paper by Hon. Justice Ejembi Eko, JSC, at the Induction Programme for the 2021 Senior Advocates",
-    url: "/assets/Resources/PAPER-BY-HON-JUSTICE-EJEMBI-EKO-JSC-AT-THE-INDUCTION-PROGRAMME-FOR-THE-2021-SENIOR-ADVOCATES.pdf",
+    url: "/Resources/PAPER-BY-HON-JUSTICE-EJEMBI-EKO-JSC-AT-THE-INDUCTION-PROGRAMME-FOR-THE-2021-SENIOR-ADVOCATES.pdf",
   },
   {
     id: 6,
     title: "Paper presented by Chief Folake Solanke, SAN",
-    url: "/assets/Resources/Paper-Presented-by-Chief-Folake-Solanke-SAN(1).pdf",
+    url: "/Resources/Paper-Presented-by-Chief-Folake-Solanke-SAN(1).pdf",
   },
   {
     id: 7,
     title: "The Pre-Swearing Induction Programme – December 1, 2021.",
-    url: "/assets/Resources/THE-PRE-SWEARING-INDUCTION-PROGRAMME-DECEMBER-1-2021.pdf",
+    url: "/Resources/THE-PRE-SWEARING-INDUCTION-PROGRAMME-DECEMBER-1-2021.pdf",
   },
 ];
 

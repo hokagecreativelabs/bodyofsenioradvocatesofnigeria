@@ -1,20 +1,89 @@
-// app/member-dashboard/layout.tsx
-import DashboardHeader from "../../components/layout/dashboard/DashoardHeader";
-import DashboardSidebar from "../../components/layout/dashboard/DashboardSidebar";
-import "@/app/globals.css";
+'use client';
+import { useState, useEffect } from 'react';
+import AdminSidebar from '@/components/layout/dashboard/DashboardSidebar';
+import AdminHeader from '@/components/layout/dashboard/DashoardHeader';
 
-export const metadata = {
-  title: "Member Dashboard",
-};
+const DashboardLayout = ({ children, title = "Dashboard" }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const sidebar = document.getElementById('sidebar');
+      const hamburger = document.getElementById('hamburger-button');
+      
+      if (sidebarOpen && 
+          sidebar && 
+          hamburger && 
+          !sidebar.contains(event.target) && 
+          !hamburger.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [sidebarOpen]);
 
-export default function DashboardLayout({ children }) {
+  // Close sidebar when screen size changes to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Prevent scrolling when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [sidebarOpen]);
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
-      <div className="flex flex-col flex-1">
-        <DashboardHeader />
-        <main className="p-4 md:p-6">{children}</main>
+    <div className="flex h-screen bg-gray-50">
+      {/* Mobile Sidebar */}
+      <AdminSidebar 
+        isMobile={true} 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)} 
+      />
+      
+      {/* Desktop Sidebar */}
+      <AdminSidebar isMobile={false} />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header with Hamburger Menu */}
+        <AdminHeader 
+          title={title} 
+          onMenuToggle={() => setSidebarOpen(!sidebarOpen)} 
+        />
+        
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto p-4">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+        
+        {/* Optional Footer */}
+        <footer className="bg-white border-t py-3 px-4 text-center text-sm text-gray-600">
+          © {new Date().getFullYear()} Your Company • All Rights Reserved
+        </footer>
       </div>
     </div>
   );
-}
+};
+
+export default DashboardLayout;
