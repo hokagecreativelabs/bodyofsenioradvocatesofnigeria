@@ -92,7 +92,7 @@ const Footer = () => {
                 </svg>
               </motion.a>
               <motion.a 
-                href="https://wa.me/2348123456789"  // Replace with your actual number
+                href="https://wa.me/2347044444124"  // Replace with your actual number
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-[#25D366] transition duration-300"
