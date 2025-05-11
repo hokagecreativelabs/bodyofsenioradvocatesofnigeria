@@ -1,29 +1,29 @@
-'use client';
-import { useEffect, useState } from "react";
-import AdminHeader from "@/components/layout/dashboard/DashoardHeader";
-import withAuth from "@/lib/withAuth";
+// in /member-dashboard/page.tsx or layout
+"use client"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
-const DashboardPage = () => {
-  const [user, setUser] = useState(null);
+const Dashboard = () => {
+  const router = useRouter();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("/api/auth/check-auth", {
+          withCredentials: true, // IMPORTANT
+        });
+        // user is authenticated
+        console.log(res.data.user);
+      } catch (err) {
+        router.push("/login"); // not authenticated
       }
-    }
+    };
+
+    checkAuth();
   }, []);
 
-  return (
-    <div>
-      <AdminHeader title="Dashboard" user={user} />
-      <div className="p-4">
-        <h2 className="text-2xl font-bold">Dashboard Content</h2>
-        {/* Your other dashboard content */}
-      </div>
-    </div>
-  );
+  return <div>Welcome to your dashboard!</div>;
 };
 
-export default withAuth(DashboardPage);
+export default Dashboard;

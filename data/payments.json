@@ -1,0 +1,103 @@
+{
+    "payments": [
+      {
+        "email": "hokagecreativelabs001@gmail.com",
+        "callUpNumber": "4",
+        "fullName": "R.A. FANI-KAYODE, SAN",
+        "yearlyPayments": [
+          {
+            "year": 2013,
+            "amountDue": 50000,
+            "amountPaid": 50000,
+            "paymentDate": "2013-12-31",
+            "receiptNumber": "BOSAN-2013-SOFOWORA"
+          },
+          {
+            "year": 2014,
+            "amountDue": 50000,
+            "amountPaid": 50000,
+            "paymentDate": "2014-12-31",
+            "receiptNumber": "BOSAN-2014-SOFOWORA"
+          },
+          {
+            "year": 2015,
+            "amountDue": 50000,
+            "amountPaid": 50000,
+            "paymentDate": "2015-12-31",
+            "receiptNumber": "BOSAN-2015-SOFOWORA"
+          },
+          {
+            "year": 2016,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2016-12-31",
+            "receiptNumber": "BOSAN-2016-SOFOWORA"
+          },
+          {
+            "year": 2017,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2017-12-31",
+            "receiptNumber": "BOSAN-2017-SOFOWORA"
+          },
+          {
+            "year": 2018,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2018-12-31",
+            "receiptNumber": "BOSAN-2018-SOFOWORA"
+          },
+          {
+            "year": 2019,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2019-12-31",
+            "receiptNumber": "BOSAN-2019-SOFOWORA"
+          },
+          {
+            "year": 2020,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2020-12-31",
+            "receiptNumber": "BOSAN-2020-SOFOWORA"
+          },
+          {
+            "year": 2021,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2021-12-31",
+            "receiptNumber": "BOSAN-2021-SOFOWORA"
+          },
+          {
+            "year": 2022,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2022-12-31",
+            "receiptNumber": "BOSAN-2022-SOFOWORA"
+          },
+          {
+            "year": 2023,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2023-12-31",
+            "receiptNumber": "BOSAN-2023-SOFOWORA"
+          },
+          {
+            "year": 2024,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2024-12-31",
+            "receiptNumber": "BOSAN-2024-SOFOWORA"
+          },
+          {
+            "year": 2025,
+            "amountDue": 100000,
+            "amountPaid": 100000,
+            "paymentDate": "2025-04-16",
+            "receiptNumber": "BOSAN-2025-SOFOWORA"
+          }
+        ]
+      }
+    ]
+  }
+  
