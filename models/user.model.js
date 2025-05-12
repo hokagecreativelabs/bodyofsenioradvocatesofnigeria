@@ -6,7 +6,20 @@ const userSchema = new mongoose.Schema({
   fullName: String,
   elevationYear: Number,
   callUpNumber: Number,
-  email: { type: String, default: "" },
+  email: { 
+    type: String, 
+    default: "",
+    unique: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      "Invalid email address",
+  ],
+  index: true, 
+  },
+  subscription: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Subscription" 
+},
   isActive: { type: Boolean, default: false },
   activationToken: String,
   activationTokenExpiresAt: Date,
