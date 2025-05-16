@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaTachometerAlt, FaSignOutAlt, FaChartLine, FaUsers, FaCog, FaFileAlt, FaTimes } from "react-icons/fa";
+import { GrTransaction } from "react-icons/gr";
 
 // Navigation links with icons
 const links = [
   { label: "Overview", href: "/member-dashboard", icon: <FaTachometerAlt /> },
-  { label: "Analytics", href: "/member-dashboard/analytics", icon: <FaChartLine /> },
-  { label: "Users", href: "/member-dashboard/users", icon: <FaUsers /> },
-  { label: "Reports", href: "/member-dashboard/reports", icon: <FaFileAlt /> },
+  // { label: "Analytics", href: "/member-dashboard/analytics", icon: <FaChartLine /> },
+  { label: "Transactions", href: "/member-dashboard/transactions", icon: <GrTransaction /> },
+  // { label: "Reports", href: "/member-dashboard/reports", icon: <FaFileAlt /> },
   { label: "Settings", href: "/member-dashboard/settings", icon: <FaCog /> },
 ];
 
@@ -31,7 +32,7 @@ const AdminSidebar = ({ isMobile = false, isOpen = false, onClose }) => {
             href={link.href}
             onClick={isMobile ? onClose : undefined}
             className={`flex items-center px-3 py-2 rounded-md font-medium transition ${
-              pathname === link.href ? "bg-blue-100 text-blue-900" : "text-white hover:bg-gray-100 hover:text-[#0F2C59]"
+              pathname === link.href ? "bg-blue-100 text-blue-900" : " hover:bg-gray-100 hover:text-[#0F2C59]"
             }`}
           >
             <span className="mr-3">{link.icon}</span>
@@ -77,7 +78,7 @@ const AdminSidebar = ({ isMobile = false, isOpen = false, onClose }) => {
               onClick={onClose}
               className="p-1 rounded-md hover:bg-gray-100"
             >
-              <FaTimes className="text-white" />
+              <FaTimes className="text-black" />
             </button>
           </div>
           
