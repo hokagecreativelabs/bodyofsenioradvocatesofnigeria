@@ -7,7 +7,7 @@ const Transactions = () => {
   // No state or logic
   
   return (
-    <div className='bg-[#f9f9f9] border border-white rounded-2xl h-full px-3 mt-4'>
+    <div className='bg-white shadow border border-white rounded-2xl h-full px-3 mt-4'>
       <div className='pt-8'>
         <div className='flex justify-between items-center'>                         
           <h1 className='font-semibold text-[#0F2C59] uppercase border-l-2 border-[#0F2C59] pl-1 text-sm'>Transaction History</h1>

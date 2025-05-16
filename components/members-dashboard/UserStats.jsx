@@ -6,7 +6,7 @@ import { RiSecurePaymentFill } from "react-icons/ri";
 export const UserStats = () => {
   return (
     <div>
-        <div className='shadow h-[25rem] lg:h-[10rem]  py-7 px-4 block lg:flex lg:justify-between space-y-5 '>
+        <div className='shadow h-[25rem] lg:h-[10rem]  py-7 px-4 block lg:flex lg:justify-between space-y-5 bg-white rounded-2xl'>
             <div className='shadow-sm h-[100px] lg:w-[20rem] space-y-3 text-[#0F2C59] font-medium rounded-md'>
                 <div className='flex items-center justify-between px-6 pt-5 '>
                     <MdPayments className='h-7 w-7' />
