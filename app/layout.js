@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
   
   // Check if the current path is part of the member dashboard
-  const isDashboardRoute = pathname?.startsWith('/member-dashboard');
+  const isDashboardRoute = pathname?.startsWith('/member-dashboard') || pathname?.startsWith('/superadmin');
 
   return (
     <html lang="en">
