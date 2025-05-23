@@ -16,12 +16,18 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import AnnouncementModal from '@/components/admin/AnnouncementModal';
 
 export default function AnnouncementsPage() {
   // State for filter and sorting
   const [filterStatus, setFilterStatus] = useState('all');
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
 
   // Sample announcements data
   const announcements = [
@@ -157,11 +163,14 @@ export default function AnnouncementsPage() {
             <BellRing className="h-6 w-6 text-indigo-600 mr-2" />
             <h1 className="text-2xl font-semibold text-gray-800">Announcements</h1>
           </div>
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md flex items-center text-sm font-medium">
+          <button 
+          onClick={openModal}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md flex items-center text-sm font-medium cursor-pointer">
             <PlusCircle className="h-4 w-4 mr-2" />
             Create Announcement
           </button>
         </div>
+        <AnnouncementModal isOpen={isModalOpen} onClose={closeModal} />
       </header>
 
       {/* Main Content */}
@@ -251,9 +260,6 @@ export default function AnnouncementsPage() {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Recipients
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created By
-                  </th>
                   <th scope="col" className="relative px-6 py-3">
                     <span className="sr-only">Actions</span>
                   </th>
@@ -277,9 +283,6 @@ export default function AnnouncementsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {announcement.recipients}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {announcement.createdBy}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">

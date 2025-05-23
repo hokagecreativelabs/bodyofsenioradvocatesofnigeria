@@ -10,10 +10,10 @@ import { MdEmojiEvents } from "react-icons/md";
 const links = [
   { label: "Overview", href: "/superadmin", icon: <FaTachometerAlt /> },
   { label: "Announcement", href: "/superadmin/announcement", icon: <TfiAnnouncement /> },
+  { label: "Events", href: "/superadmin/events", icon: <MdEmojiEvents /> },
   { label: "Users", href: "/superadmin/users", icon: <FaUsers /> },
   { label: "Transactions", href: "/superadmin/transactions", icon: <GrTransaction /> },
-  { label: "Events", href: "/superadmin/events", icon: <MdEmojiEvents /> },
-  { label: "Settings", href: "/superadmin/settings", icon: <FaCog /> },
+  // { label: "Settings", href: "/superadmin/settings", icon: <FaCog /> },
 ];
 
 // Sidebar Component for both mobile and desktop
@@ -76,7 +76,7 @@ const AdminSidebar = ({ isMobile = false, isOpen = false, onClose }) => {
           } md:hidden transition duration-200 ease-in-out z-30 w-64 bg-white shadow-lg flex flex-col`}
         >
           <div className="h-16 flex items-center justify-between px-4 border-b">
-            <span className="font-bold text-lg">Member Area</span>
+            <span className="font-bold text-lg">Admin Area</span>
             <button 
               onClick={onClose}
               className="p-1 rounded-md hover:bg-gray-100"
@@ -95,7 +95,7 @@ const AdminSidebar = ({ isMobile = false, isOpen = false, onClose }) => {
   return (
     <aside className="w-64 hidden md:flex flex-col bg-[#0F2C59] text-white border-r shadow-sm">
       <div className="h-16 flex items-center justify-center border-b font-bold text-lg">
-        Member Area
+        Admin Area
       </div>
       {navigationContent}
     </aside>

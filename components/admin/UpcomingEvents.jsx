@@ -32,7 +32,7 @@ const UpcomingEvents = () => {
                   ))}
                 </ul>
                 <button className="w-full mt-4 py-2 text-sm text-indigo-600 border border-indigo-200 rounded-md hover:bg-indigo-50">
-                View All Activity
+                View All Events
               </button>
               </div>
             </div>
