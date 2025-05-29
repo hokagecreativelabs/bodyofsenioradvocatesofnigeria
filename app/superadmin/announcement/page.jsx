@@ -36,60 +36,42 @@ export default function AnnouncementsPage() {
       title: "System Maintenance Scheduled", 
       message: "The system will be down for maintenance on Saturday, May 24th from 2:00 AM to 4:00 AM EST.", 
       status: "active", 
-      priority: "high", 
-      createdBy: "Admin Team",
       date: "May 18, 2025",
-      recipients: "All Users"
     },
     { 
       id: 2, 
       title: "New Feature Launch", 
       message: "We're excited to announce the launch of our new messaging feature, available starting next week.", 
       status: "scheduled", 
-      priority: "medium", 
-      createdBy: "Product Team",
       date: "May 25, 2025",
-      recipients: "Premium Users"
     },
     { 
       id: 3, 
       title: "Holiday Schedule", 
       message: "Our offices will be closed on Monday, May 26th for Memorial Day. Normal operations will resume on Tuesday.", 
       status: "active", 
-      priority: "medium", 
-      createdBy: "HR Department",
       date: "May 17, 2025",
-      recipients: "All Users"
     },
     { 
       id: 4, 
       title: "Updated Privacy Policy", 
       message: "Our privacy policy has been updated. Please review the changes at your earliest convenience.", 
       status: "active", 
-      priority: "low", 
-      createdBy: "Legal Team",
       date: "May 15, 2025",
-      recipients: "All Users"
     },
     { 
       id: 5, 
       title: "Upcoming Webinar", 
       message: "Join us for a webinar on advanced platform features on June 1st at 1 PM EST.", 
       status: "scheduled", 
-      priority: "medium", 
-      createdBy: "Marketing Team",
       date: "Jun 1, 2025",
-      recipients: "Free & Premium Users"
     },
     { 
       id: 6, 
       title: "System Update Complete", 
       message: "The system update has been successfully completed. All services are now operating normally.", 
       status: "expired", 
-      priority: "high", 
-      createdBy: "Tech Support",
       date: "May 10, 2025",
-      recipients: "All Users"
     },
   ];
 
@@ -105,11 +87,6 @@ export default function AnnouncementsPage() {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
       return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
-    } else if (sortField === 'priority') {
-      const priorityValues = { high: 3, medium: 2, low: 1 };
-      return sortDirection === 'asc' 
-        ? priorityValues[a.priority] - priorityValues[b.priority]
-        : priorityValues[b.priority] - priorityValues[a.priority];
     }
     return 0;
   });
@@ -139,20 +116,6 @@ export default function AnnouncementsPage() {
     );
   };
 
-  // Priority badge component
-  const PriorityBadge = ({ priority }) => {
-    const priorityStyles = {
-      high: "bg-red-100 text-red-800",
-      medium: "bg-yellow-100 text-yellow-800",
-      low: "bg-blue-100 text-blue-800"
-    };
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityStyles[priority]}`}>
-        {priority.charAt(0).toUpperCase() + priority.slice(1)}
-      </span>
-    );
-  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -246,20 +209,6 @@ export default function AnnouncementsPage() {
                       )}
                     </button>
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <button 
-                      className="flex items-center" 
-                      onClick={() => handleSort('priority')}
-                    >
-                      Priority
-                      {sortField === 'priority' && (
-                        sortDirection === 'asc' ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />
-                      )}
-                    </button>
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Recipients
-                  </th>
                   <th scope="col" className="relative px-6 py-3">
                     <span className="sr-only">Actions</span>
                   </th>
@@ -277,12 +226,6 @@ export default function AnnouncementsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={announcement.status} />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <PriorityBadge priority={announcement.priority} />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {announcement.recipients}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">

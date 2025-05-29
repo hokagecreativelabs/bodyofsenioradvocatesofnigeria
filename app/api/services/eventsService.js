@@ -94,45 +94,42 @@ export async function createEvent(eventData) {
 
 /**
  * Update an existing event
- * @param {string} eventId - The ID of the event to update
+ * @param {string} id - The ID of the event to update
  * @param {Object} eventData - The updated event data
  * @returns {Promise<Object>} Updated event object
  */
-export async function updateEvent(eventId, eventData) {
-  try {
-    if (!eventId) {
-      throw new Error("Event ID is required");
-    }
-    
-    if (!eventData) {
-      throw new Error("Event data is required");
-    }
-    
-    // Make sure date is in ISO format if it's a Date object
-    if (eventData.date instanceof Date) {
-      eventData.date = eventData.date.toISOString();
-    }
-    
-    const res = await fetch(`${BASE_URL}/${eventId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(eventData),
-    });
-    
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || "Failed to update the event");
-    }
-    
-    const response = await res.json();
-    return response.success ? response.data : null;
-  } catch (error) {
-    console.error(`Error updating event ${eventId}:`, error);
-    throw error;
+export const updateEvent = async (id, eventData) => {
+  // Debug logging
+  console.log('updateEvent called with:');
+  console.log('ID:', id);
+  console.log('ID type:', typeof id);
+  console.log('Event data:', eventData);
+  
+  if (!id) {
+    throw new Error('Event ID is required for update');
   }
-}
+  
+  const url = `/api/events/${id}`;
+  console.log('Making PUT request to:', url);
+  
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(eventData),
+  });
+  
+  console.log('Response status:', response.status);
+  console.log('Response ok:', response.ok);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.log('Error response:', errorText);
+    throw new Error(`Failed to update event: ${response.statusText}`);
+  }
+  
+  return response.json();
+};
+
 
 /**
  * Delete an event

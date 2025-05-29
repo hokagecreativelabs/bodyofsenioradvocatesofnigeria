@@ -86,10 +86,11 @@ const AnnouncementModal = ({ isOpen, onClose }) => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                 >
-                  <option value="upcoming">Upcoming</option>
+                  <option value="all">All Statuses</option>
                   <option value="active">Active</option>
-                  <option value="complete">Complete</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="expired">Expired</option>
+                  <option value="draft">Draft</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                   <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

@@ -20,10 +20,8 @@ import {
   AlertCircle,
   Loader
 } from 'lucide-react';
-import { getAllEvents } from "@/app/api/services/eventsService";
+import { getAllEvents, updateEvent, deleteEvent } from "@/app/api/services/eventsService";
 import EventModal from "@/components/admin/EventModal";
-
-
 
 export default function EventsPage() {
   // State for filter and sorting
@@ -33,39 +31,112 @@ export default function EventsPage() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Modal states - Using single modal for both create and edit
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  // Data states
   const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  // Open modal for creating new event
+  const openCreateModal = () => {
+    setSelectedEvent(null);
+    setIsEditMode(false);
+    setIsModalOpen(true);
+  };
   
+  // Open modal for editing existing event 
+  const openEditModal = (event) => {
+    setSelectedEvent(event);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+  
+  // Close modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+    setIsEditMode(false);
+  };
+   
   // Fetch events from the API
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
- 
-        const response = await getAllEvents(); 
-  
-        if (Array.isArray(response)) {
-          setEvents(response);
-        } else if (response && response.data) {
-          setEvents(response.data);
-        } else {
-          setError("No data received from API");
-        }
-      } catch (err) {
-        setError(`Failed to fetch events: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
+      const response = await getAllEvents(); 
+      console.log(response)
+      if (Array.isArray(response)) {
+        setEvents(response);
+      } else if (response && response.data) {
+        setEvents(response.data);
+      } else {
+        setError("No data received from API");
+      }
+    } catch (err) {
+      setError(`Failed to fetch events: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Callback function to handle event creation 
+  const handleEventCreated = async () => {
+    try {
+      
+      // Close the modal first
+      closeModal();
+      
+      // Refetch all events from the server
+      await fetchEvents();
+      
+    } catch (err) {
+      setError(`Failed to refresh events: ${err.message}`);
+
+    }
+  };
+
+  // Separate callback for event updates 
+  const handleEventUpdated = async () => {
+    try {
+
+      
+      // Close the modal first
+      closeModal();
+      
+      // Refetch all events from the server
+      await fetchEvents();
+      
+    } catch (err) {
+      setError(`Failed to refresh events: ${err.message}`);
+
+    }
+  };
+
+  // Fetch events when the component mounts
+  useEffect(() => {
     fetchEvents();
   }, []);
+
+  // Delete event handler with better error handling
+  const handleDelete = async (id) => {
+    if (confirm("Are you sure you want to delete this event?")) {
+      try {
+        await deleteEvent(id);
+        
+        // Refetch events after successful deletion
+        await fetchEvents();
+
+      } catch (err) {
+        setError("Failed to delete event. Please try again later.");
+
+      }
+    }
+  };
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -123,8 +194,6 @@ export default function EventsPage() {
     }).format(date);
   };
   
-
-  
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
@@ -135,19 +204,25 @@ export default function EventsPage() {
             <h1 className="text-2xl font-semibold text-gray-800">Events</h1>
           </div>
           <button 
-            onClick={openModal}
+            onClick={openCreateModal}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md flex items-center text-sm font-medium cursor-pointer">
             <PlusCircle className="h-4 w-4 mr-2" />
             Create Event
           </button>
         </div>
-        <EventModal isOpen={isModalOpen} onClose={closeModal} />
+        
+        {/* Single EventModal for both create and edit*/}
+        <EventModal 
+          isOpen={isModalOpen} 
+          onClose={closeModal} 
+          onEventCreated={handleEventCreated}
+          onEventUpdated={handleEventUpdated}
+          eventToEdit={selectedEvent}
+        />
       </header>
 
       {/* Main Content */}
       <main className="flex-1 p-6">
-
-
         {/* Search and Filter Bar */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-grow">
@@ -303,10 +378,18 @@ export default function EventsPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex items-center justify-end space-x-2">
-                              <button className="text-indigo-600 hover:text-indigo-900">
+                              <button 
+                                onClick={() => openEditModal(event)}
+                                className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                                title="Edit event"
+                              >
                                 <Edit className="h-4 w-4" />
                               </button>
-                              <button className="text-red-600 hover:text-red-900">
+                              <button 
+                                onClick={() => handleDelete(event._id)}
+                                className="text-red-600 hover:text-red-900 cursor-pointer"
+                                title="Delete event"
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </button>
                               <div className="relative">
@@ -375,10 +458,18 @@ export default function EventsPage() {
                       
                       <div className="mt-6 flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <button className="text-indigo-600 hover:text-indigo-900">
+                          <button 
+                            onClick={() => openEditModal(event)}
+                            className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
+                            title="Edit event"
+                          >
                             <Edit className="h-4 w-4" />
                           </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          <button 
+                            onClick={() => handleDelete(event._id)}
+                            className="text-red-600 hover:text-red-900 cursor-pointer"
+                            title="Delete event"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </button>
                           <button className="text-gray-400 hover:text-gray-600">

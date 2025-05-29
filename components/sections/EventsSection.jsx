@@ -1,35 +1,13 @@
 "use client";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-const events = [
-  {
-    title: "2025 BOSAN Annual Dinner",
-    date: "May 25, 2025",
-    location: "Eko Hotel & Suites, Lagos",
-    img: "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?auto=format&fit=crop&w=800&q=80", // cleaner image
-    desc: "An elegant evening celebrating legal excellence, legacy, and community.",
-  },
-  {
-    title: "Legal Excellence Summit",
-    date: "June 15, 2025",
-    location: "Transcorp Hilton, Abuja",
-    img: "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?auto=format&fit=crop&w=800&q=80",
-    desc: "Top legal minds gather to discuss transformative reforms and justice trends.",
-  },
-  {
-    title: "Mentorship Breakfast Forum",
-    date: "July 6, 2025",
-    location: "Oriental Hotel, VI",
-    img: "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?auto=format&fit=crop&w=800&q=80",
-    desc: "A vibrant morning of mentorship and intergenerational dialogue in the legal field.",
-  },
-];
-
+// Format date to show day and month
 const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   const day = date.toLocaleDateString("en-US", { day: "2-digit" });
@@ -37,7 +15,45 @@ const formatDate = (dateStr) => {
   return { day, month };
 };
 
+// Fetch events from the API
+const getAllEvents = async () => {
+  try {
+    const response = await fetch("/api/events");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
+
 export default function UpcomingEvents() {
+  const [events, setEvents] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setError(null);
+        const response = await getAllEvents();
+        console.log(response)
+        if (Array.isArray(response)) {
+          setEvents(response);
+        } else if (response && response.data) {
+          setEvents(response.data);
+        } else {
+          setError("No data received from API");
+        }
+      } catch (err) {
+        setError(`Failed to fetch events: ${err.message}`);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
   return (
     <motion.section
       className="py-24 px-4 md:px-12"
@@ -52,42 +68,51 @@ export default function UpcomingEvents() {
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {events.map((event, index) => {
-          const { day, month } = formatDate(event.date);
-          return (
-            <motion.div
-              key={index}
-              className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 + index * 0.1 }}
-            >
-              <div className="relative h-60 overflow-hidden">
-                <img
-                  src={event.img}
-                  alt={event.title}
-                  className="w-full h-full object-cover object-center"
-                />
-                <div className="absolute top-4 left-4 bg-white shadow-md rounded-md text-center w-12">
-                  <div className="bg-[#D4AF37] text-white text-xs font-bold py-1 rounded-t-md">
-                    {month.toUpperCase()}
+        {error ? (
+          <div className="col-span-full text-center text-red-600">{error}</div>
+        ) : events.length === 0 ? (
+          <div className="col-span-full text-center text-gray-500">No upcoming events.</div>
+        ) : (
+          events.map((event, index) => {
+            const { day, month } = formatDate(event.date);
+            return (
+              <motion.div
+                key={index}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+              >
+                <div className="relative h-60 overflow-hidden">
+                  <img
+                    src={event.image}
+                    alt={event.title}
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute top-4 left-4 bg-white shadow-md rounded-md text-center w-12">
+                    <div className="bg-[#D4AF37] text-white text-xs font-bold py-1 rounded-t-md">
+                      {month.toUpperCase()}
+                    </div>
+                    <div className="text-[#0F2C59] font-bold text-lg py-1">{day}</div>
                   </div>
-                  <div className="text-[#0F2C59] font-bold text-lg py-1">{day}</div>
                 </div>
-              </div>
-              <div className="p-6">
-                <h4 className="text-xl font-bold text-[#0F2C59] mb-1">{event.title}</h4>
-                <p className="text-sm text-[#D4AF37] font-medium mb-2">{event.location}</p>
-                <p className="text-gray-600 text-sm leading-relaxed">{event.desc}</p>
-              </div>
-            </motion.div>
-          );
-        })}
+                <div className="p-6">
+                  <h4 className="text-xl font-bold text-[#0F2C59] mb-1">{event.title}</h4>
+                  <p className="text-sm text-[#D4AF37] font-medium mb-2">{event.location}</p>
+                  <p className="text-gray-600 text-sm leading-relaxed">{event.description}</p>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
 
       <div className="mt-16 text-center">
-        <a href="/events" className="bg-[#D4AF37] hover:bg-[#b6952f] transition-colors text-white font-semibold py-3 px-8 rounded-full shadow">
+        <a
+          href="/events"
+          className="bg-[#D4AF37] hover:bg-[#b6952f] transition-colors text-white font-semibold py-3 px-8 rounded-full shadow"
+        >
           Our Annual Events
         </a>
       </div>

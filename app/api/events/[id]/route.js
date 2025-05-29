@@ -20,12 +20,14 @@ export async function PUT(req, { params }) {
   await dbConnect();
 
   try {
+    const { id } = await params
+
     const body = await req.json();
-    const { title, date, time, location, status, description } = body;
+    const { title, date, time, location, status, description, image } = body;
 
     const updatedEvent = await Event.findByIdAndUpdate(
-      params.id,
-      { title, date, time, location, status, description },
+      id,
+      { title, date, time, location, status, description, image },
       { new: true, runValidators: true }
     );
 
@@ -43,7 +45,9 @@ export async function DELETE(req, { params }) {
   await dbConnect();
 
   try {
-    const deletedEvent = await Event.findByIdAndDelete(params.id);
+    const { id } = await params
+
+    const deletedEvent = await Event.findByIdAndDelete(id);
 
     if (!deletedEvent) {
       return new Response(JSON.stringify({ success: false, message: "Event not found" }), { status: 404 });
