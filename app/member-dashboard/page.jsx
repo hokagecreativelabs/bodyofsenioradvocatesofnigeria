@@ -10,21 +10,21 @@ import Transactions from "@/components/members-dashboard/Transactions";
 const Dashboard = () => {
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     try {
-  //       const res = await axios.get("/api/auth/check-auth", {
-  //         withCredentials: true, // IMPORTANT
-  //       });
-  //       // user is authenticated
-  //       console.log(res.data.user);
-  //     } catch (err) {
-  //       router.push("/login"); // not authenticated
-  //     }
-  //   };
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("/api/auth/check-auth", {
+          withCredentials: true, // IMPORTANT
+        });
+        // user is authenticated
+        console.log(res.data.user);
+      } catch (err) {
+        router.push("/login"); // not authenticated
+      }
+    };
 
-  //   checkAuth();
-  // }, []);
+    checkAuth();
+  }, []);
 
   return (
     <div>
