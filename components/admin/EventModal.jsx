@@ -21,14 +21,53 @@ const EventModal = ({ isOpen, onClose, onEventCreated, onEventUpdated, eventToEd
   const [uploadingImage, setUploadingImage] = useState(false);
   const [existingImageUrl, setExistingImageUrl] = useState(null)
 
+  // Function to automatically determine status based on date and time
+  const getAutoStatus = (date, time) => {
+    if (!date || !time) return 'upcoming';
+    
+    const now = new Date();
+    const eventDateTime = new Date(`${date}T${time}`);
+    
+    if (isNaN(eventDateTime.getTime())) return 'upcoming';
+    
+    const timeDifference = eventDateTime.getTime() - now.getTime();
+    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+    
+    // If event is more than 1 day in the future
+    if (daysDifference > 1) {
+      return 'upcoming';
+    }
+    // If event is within 24 hours (future) or currently happening (within 1 hour past)
+    else if (daysDifference > -0.041667) { // -0.041667 days = -1 hour
+      return 'active';
+    }
+    // If event has passed by more than 1 hour
+    else {
+      return 'complete';
+    }
+  };
+
+  // Function to update status when date or time changes
+  const updateStatusBasedOnDateTime = (date, time) => {
+    const newStatus = getAutoStatus(date, time);
+    setFormData(prevData => ({
+      ...prevData,
+      status: newStatus
+    }));
+  };
+
   useEffect(() => {
     if (eventToEdit) {
       // Editing mode - populate form with existing data
       const { title, status, date, location, description, image } = eventToEdit;
       const [eventDate, eventTime] = date.split("T");
+      
+      // Auto-update status based on current date/time when editing
+      const autoStatus = getAutoStatus(eventDate, eventTime.slice(0, 5));
+      
       setFormData({
         title,
-        status,
+        status: autoStatus, // Use auto-calculated status instead of stored status
         date: eventDate,
         time: eventTime.slice(0, 5), // Trim seconds
         image,
@@ -63,10 +102,21 @@ const EventModal = ({ isOpen, onClose, onEventCreated, onEventUpdated, eventToEd
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prevData) => {
+      const newData = {
+        ...prevData,
+        [name]: value,
+      };
+      
+      // Auto-update status when date or time changes
+      if (name === 'date' || name === 'time') {
+        const date = name === 'date' ? value : prevData.date;
+        const time = name === 'time' ? value : prevData.time;
+        newData.status = getAutoStatus(date, time);
+      }
+      
+      return newData;
+    });
   };
 
   const handleImageChange = (e) => {
@@ -156,11 +206,12 @@ const EventModal = ({ isOpen, onClose, onEventCreated, onEventUpdated, eventToEd
         console.log("Image uploaded, URL:", imageUrl);
       }
 
-      // Create event with image URL
+      // Create event with image URL and auto-calculated status
       const eventData = {
         ...formData,
         date: eventDateTime.toISOString(),
         image: imageUrl,
+        status: getAutoStatus(date, time), // Ensure status is current at submission
       };
 
       if (eventToEdit) {
@@ -217,6 +268,16 @@ const EventModal = ({ isOpen, onClose, onEventCreated, onEventUpdated, eventToEd
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
+  const getStatusDescription = (status) => {
+    const descriptions = {
+      upcoming: 'Event is scheduled for the future',
+      active: 'Event is happening soon or currently active',
+      complete: 'Event has already concluded',
+      cancelled: 'Event has been cancelled',
+    };
+    return descriptions[status] || '';
+  };
+
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
@@ -259,19 +320,23 @@ const EventModal = ({ isOpen, onClose, onEventCreated, onEventUpdated, eventToEd
               required
             />
 
-            <SelectField
-              id="status"
-              label="Status"
-              value={formData.status}
-              onChange={handleChange}
-              options={[
-                { value: 'upcoming', label: 'Upcoming' },
-                { value: 'active', label: 'Active' },
-                { value: 'complete', label: 'Complete' },
-                { value: 'cancelled', label: 'Cancelled' },
-              ]}
-              statusColor={getStatusColor(formData.status)}
-            />
+            {/* Enhanced Status Display - Read-only with explanation */}
+            <div>
+              <div className="flex items-center justify-between pb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Status (Auto-updated)
+                </label>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(formData.status)}`}>
+                  {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
+                </span>
+              </div>
+              <div className="w-full px-4 py-2 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-600">
+                {getStatusDescription(formData.status)}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Status updates automatically based on the selected date and time
+              </p>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <DateTimeField
@@ -390,7 +455,7 @@ const EventModal = ({ isOpen, onClose, onEventCreated, onEventUpdated, eventToEd
       return (
         <>
           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          Creating...
+          {eventToEdit ? 'Updating...' : 'Creating...'}
         </>
       );
     }
@@ -442,32 +507,6 @@ const TextareaField = ({ id, label, value, onChange, placeholder }) => (
       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
       placeholder={placeholder}
     />
-  </div>
-);
-
-const SelectField = ({ id, label, value, onChange, options, statusColor }) => (
-  <div>
-    <div className="flex items-center justify-between pb-2">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label}
-      </label>
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
-        {value.charAt(0).toUpperCase() + value.slice(1)}
-      </span>
-    </div>
-    <select
-      id={id}
-      name={id}
-      value={value}
-      onChange={onChange}
-      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-    >
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
   </div>
 );
 
