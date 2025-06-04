@@ -50,7 +50,6 @@ const UserPage = () => {
                     <th className="px-6 py-3 text-left">ID</th>
                     <th className="px-6 py-3 text-left">User</th>
                     <th className="px-6 py-3 text-left">email</th>
-                    <th className="px-6 py-3 text-left">Status</th>
                     <th className="px-6 py-3 text-left">Date</th>
                   </tr>
                 </thead>
@@ -60,17 +59,6 @@ const UserPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{transaction.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{transaction.user}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{transaction.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                          ${transaction.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                            transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                            'bg-red-100 text-red-800'}`}>
-                          {transaction.status === 'completed' && <Check size={12} className="mr-1" />}
-                          {transaction.status === 'pending' && <Layers size={12} className="mr-1" />}
-                          {transaction.status === 'failed' && <AlertTriangle size={12} className="mr-1" />}
-                          {transaction.status}
-                        </span>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-500">{transaction.date}</td>
                     </tr>
                   ))}
