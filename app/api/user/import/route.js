@@ -51,8 +51,8 @@ function validateRowData(row, rowIndex) {
     errors.push(`Row ${rowIndex + 2}: Invalid elevation year`);
   }
   
-  if (row.callUpNumber && (isNaN(row.callUpNumber) || row.callUpNumber < 0)) {
-    errors.push(`Row ${rowIndex + 2}: Invalid call-up number`);
+  if (row.callUpNumber && typeof row.callUpNumber !== 'string' && !row.callUpNumber.toString().trim()) {
+    errors.push(`Row ${rowIndex + 2}: Call-up number must be a valid string`);
   }
   
   if (row.debitBalance && (isNaN(row.debitBalance) || row.debitBalance < 0)) {
@@ -62,8 +62,27 @@ function validateRowData(row, rowIndex) {
   return errors;
 }
 
+// Generate activation token and expiry
+function generateActivationToken() {
+  const crypto = require('crypto');
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+  return { token, expiry };
+}
+
 // Transform Excel data to match your User model
 function transformRowData(row) {
+  // Handle callUpNumber to avoid null duplicate key issues
+  let callUpNumber;
+  if (row.callUpNumber && row.callUpNumber.toString().trim()) {
+    callUpNumber = row.callUpNumber.toString().trim();
+  }
+  // If callUpNumber is empty/null, we don't set it (leave it undefined)
+  // This way Mongoose won't save it as null, avoiding the unique constraint issue
+
+  // Generate activation token for new users
+  const { token, expiry } = generateActivationToken();
+
   return {
     // Custom id from Excel (keeping as string to match your schema)
     id: row.id?.toString().trim(),
@@ -75,10 +94,14 @@ function transformRowData(row) {
     
     // Optional fields
     elevationYear: row.elevationYear ? parseInt(row.elevationYear) : undefined,
-    callUpNumber: row.callUpNumber ? parseInt(row.callUpNumber) : undefined,
+    ...(callUpNumber && { callUpNumber }), // Only include if we have a value
     
     // Financial field
     debitBalance: row.debitBalance ? parseFloat(row.debitBalance) : 0,
+    
+    // Activation fields for new users
+    activationToken: token,
+    activationTokenExpiresAt: expiry,
     
     // Default values for other fields
     isActive: false,
@@ -116,6 +139,10 @@ export async function POST(request) {
     console.log('Parsing form data...');
     const formData = await request.formData();
     console.log('Form data keys:', Array.from(formData.keys()));
+    
+    // Check for sendInvites flag (optional parameter)
+    const shouldSendInvites = formData.get('sendInvites') !== 'false'; // Default to true
+    console.log('Should send invites:', shouldSendInvites);
     
     // Try different field names that might be used
     const file = formData.get('excel') || formData.get('file') || formData.get('excelFile');
@@ -278,13 +305,59 @@ export async function POST(request) {
       }
     }
 
-    // Clean up - no file to clean since we read from buffer
     console.log('Import completed successfully');
-    return Response.json({
+
+    // Prepare response
+    const response = {
       message: 'Data imported successfully',
       insertedCount: insertedUsers.length,
-      insertedUsers: insertedUsers
-    });
+      insertedUsers: insertedUsers,
+      invitesSent: false,
+      inviteResults: null
+    };
+
+    // Send invites if requested (default behavior)
+    if (shouldSendInvites && insertedUsers.length > 0) {
+      try {
+        console.log('Sending invites to imported users...');
+        
+        // Get the base URL from the request
+        const url = new URL(request.url);
+        const baseUrl = `${url.protocol}//${url.host}`;
+        const sendInvitesUrl = `${baseUrl}/api/send-invites`;
+
+        const inviteResponse = await fetch(sendInvitesUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(request.headers.get('authorization') && {
+              'authorization': request.headers.get('authorization')
+            })
+          },
+          body: JSON.stringify({
+            userIds: insertedUsers.map(user => user._id.toString())
+          })
+        });
+
+        if (!inviteResponse.ok) {
+          throw new Error(`Send-invites failed: ${inviteResponse.status}`);
+        }
+
+        const inviteResults = await inviteResponse.json();
+        
+        response.invitesSent = true;
+        response.inviteResults = inviteResults;
+        response.message = 'Data imported and invitations sent successfully';
+        
+      } catch (inviteError) {
+        console.error('Failed to send invites after import:', inviteError);
+        
+        response.message = 'Data imported successfully, but failed to send invitations';
+        response.inviteError = inviteError.message;
+      }
+    }
+
+    return Response.json(response);
 
   } catch (error) {
     console.error('Import error:', error);
@@ -303,7 +376,9 @@ export async function GET() {
     message: 'User import API is working',
     methods: ['POST'],
     expectedFields: ['excel', 'file'],
+    optionalFields: ['sendInvites'], // Set to 'false' to skip automatic invites
     requiredColumns: ['id', 'name', 'fullName', 'email'],
-    optionalColumns: ['elevationYear', 'callUpNumber', 'debitBalance']
+    optionalColumns: ['elevationYear', 'callUpNumber', 'debitBalance'],
+    defaultBehavior: 'Automatically sends invites after import unless sendInvites=false'
   });
 }

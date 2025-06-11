@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
 
     // Year and Call-up number for tracking
     elevationYear: { type: Number, required: false },
-    callUpNumber: { type: Number, required: false },
+    callUpNumber: { type: String, required: false },
 
     // Email with validation and uniqueness
     email: { 
